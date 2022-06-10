@@ -10,14 +10,18 @@ const pool = new pg.Pool();
 
 const app = express();
 const port = process.env.PORT || 3333;
-const username = ["JadenDurnford"];
 const params = {
   "user.fields": "public_metrics",
 };
 
 const token = process.env.token;
 const authToken = process.env.authToken;
-const channelId:string = process.env.channelId!;
+const channelId = process.env.channelId!;
+
+if (!channelId) {
+  console.log("missing var");
+  process.exit(1);
+}
 
 const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
 client.login(authToken);
@@ -25,6 +29,18 @@ client.login(authToken);
 axios.defaults.headers.get['authorization'] = `Bearer ${token}`;
 
 cron.schedule('*/5 * * * * *', async () => {
+  const usersCount = await pool.query("SELECT COUNT(username) FROM userstracked");
+
+  if (usersCount.rows[0].count == 0) {
+    console.log("no accounts to track");
+    process.exit(1);
+  }
+
+  const user = await pool.query("SELECT username FROM userstracked");
+  const username = [`${user.rows[0].username}`];
+  for (let k = 1; k < usersCount.rows[0].count; k++) {
+    username.push(`${user.rows[k].username}`);
+  }
   for (let i = 0; i < username.length; i++) {
     const endpointURL = `https://api.twitter.com/2/users/by/username/${username[i]}`;
     const response = await axios.get(endpointURL, {params});
