@@ -10,7 +10,7 @@ const pool = new pg.Pool();
 
 const app = express();
 const port = process.env.PORT || 3333;
-const username = ["jadendurnford"];
+const username = ["JadenDurnford"];
 const params = {
   "user.fields": "public_metrics",
 };
@@ -24,18 +24,17 @@ client.login(authToken);
 
 axios.defaults.headers.get['authorization'] = `Bearer ${token}`;
 
-cron.schedule('*/10 * * * * *', async () => {
+cron.schedule('*/5 * * * * *', async () => {
   for (let i = 0; i < username.length; i++) {
     const endpointURL = `https://api.twitter.com/2/users/by/username/${username[i]}`;
     const response = await axios.get(endpointURL, {params});
     const {rows} = await pool.query(`SELECT COUNT(username) FROM twitterdata WHERE username = '${response.data.data.username}'`);
-    
     if (rows[0].count == 1) {
       const following = await pool.query(`SELECT following FROM twitterdata WHERE username = '${username[i]}'`);
-      
-
+      console.log(response.data.data.public_metrics.following_count);
       if (following.rows[0].following < response.data.data.public_metrics.following_count) {
         const numberNew = response.data.data.public_metrics.following_count - following.rows[0].following;
+
         for (let j = 0; j < numberNew; j++) {
           const id = await pool.query(`SELECT twitterid FROM twitterdata WHERE username = '${username[i]}'`);
           const newFollow = await axios.get(`https://api.twitter.com/2/users/${id.rows[0].twitterid}/following?max_results=${j+1}`);
