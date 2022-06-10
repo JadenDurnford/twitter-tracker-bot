@@ -17,7 +17,7 @@ const params = {
 
 const token = process.env.token;
 const authToken = process.env.authToken;
-const channelId = process.env.channelId;
+const channelId:string = process.env.channelId!;
 
 const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
 client.login(authToken);
