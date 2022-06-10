@@ -60,11 +60,15 @@ cron.schedule('*/1 * * * *', async () => {
           console.log(`${username[i]} just followed ${newFollow.data.data[j].username}`);
         
           (channel as TextChannel).send(`<@${userId}> ${username[i]} just followed https://twitter.com/${newFollow.data.data[j].username}`);
+          await pool.query(`INSERT INTO usersfollowed (username, followedby) VALUES ('${newFollow.data.data[j].username}', '${username[i]}')`);
         }
+
         await pool.query(`UPDATE twitterdata SET following = ${response.data.data.public_metrics.following_count} WHERE username = '${username[i]}'`);
+
       } else if (following.rows[0].following > response.data.data.public_metrics.following_count) {
         await pool.query(`UPDATE twitterdata SET following = ${response.data.data.public_metrics.following_count} WHERE username = '${username[i]}'`);
       }
+
     } else {
       await pool.query(`INSERT INTO twitterdata (username, following, twitterid) VALUES ('${response.data.data.username}', ${response.data.data.public_metrics.following_count}, '${response.data.data.id}')`)
 
