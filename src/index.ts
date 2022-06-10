@@ -17,8 +17,9 @@ const params = {
 const token = process.env.token;
 const authToken = process.env.authToken;
 const channelId = process.env.channelId!;
+const userId = process.env.userId;
 
-if (!channelId) {
+if (!channelId || !userId) {
   console.log("missing var");
   process.exit(1);
 }
@@ -28,7 +29,8 @@ client.login(authToken);
 
 axios.defaults.headers.get['authorization'] = `Bearer ${token}`;
 
-cron.schedule('*/15 * * * * *', async () => {
+cron.schedule('*/1 * * * *', async () => {
+  const channel = await client.channels.fetch(channelId);
   const usersCount = await pool.query("SELECT COUNT(username) FROM userstracked");
 
   if (usersCount.rows[0].count == 0) {
@@ -57,8 +59,7 @@ cron.schedule('*/15 * * * * *', async () => {
 
           console.log(`${username[i]} just followed ${newFollow.data.data[j].username}`);
         
-          const channel = await client.channels.fetch(channelId);
-          (channel as TextChannel).send(`${username[i]} just followed ${newFollow.data.data[j].username}`);
+          (channel as TextChannel).send(`<@${userId}> ${username[i]} just followed https://twitter.com/${newFollow.data.data[j].username}`);
         }
         await pool.query(`UPDATE twitterdata SET following = ${response.data.data.public_metrics.following_count} WHERE username = '${username[i]}'`);
       } else if (following.rows[0].following > response.data.data.public_metrics.following_count) {
@@ -68,6 +69,8 @@ cron.schedule('*/15 * * * * *', async () => {
       await pool.query(`INSERT INTO twitterdata (username, following, twitterid) VALUES ('${response.data.data.username}', ${response.data.data.public_metrics.following_count}, '${response.data.data.id}')`)
 
       console.log(`added new twitter user: ${response.data.data.username}`);
+
+      (channel as TextChannel).send(`<@${userId}> https://twitter.com/${response.data.data.username} is now being tracked`);
     }
   } 
 }); 
