@@ -15,11 +15,6 @@ const params = {
   "user.fields": "public_metrics",
 };
 
-const token = "AAAAAAAAAAAAAAAAAAAAAD%2BZdQEAAAAAaqCStp2lqrxO7AdjNVBv%2BOg0lmY%3DZI4El7y6QVebcmVf6BUDnVnlvKcXCsOvJPwxt9PKaATZ7MLLPq";
-const authToken = "OTg0MDY1MDc0MDczMzM3ODc2.GYSFEN.ggdFfFHLCQpLdMpcN2WMpte7kl3acdSxgPiJ6s";
-const channelId = "984066462199210017";
-
-
 const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
 client.login(authToken);
 
