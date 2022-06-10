@@ -28,7 +28,7 @@ client.login(authToken);
 
 axios.defaults.headers.get['authorization'] = `Bearer ${token}`;
 
-cron.schedule('*/5 * * * * *', async () => {
+cron.schedule('*/15 * * * * *', async () => {
   const usersCount = await pool.query("SELECT COUNT(username) FROM userstracked");
 
   if (usersCount.rows[0].count == 0) {
