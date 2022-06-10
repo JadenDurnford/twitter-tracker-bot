@@ -31,7 +31,7 @@ cron.schedule('*/5 * * * * *', async () => {
     const {rows} = await pool.query(`SELECT COUNT(username) FROM twitterdata WHERE username = '${response.data.data.username}'`);
     if (rows[0].count == 1) {
       const following = await pool.query(`SELECT following FROM twitterdata WHERE username = '${username[i]}'`);
-      console.log(response.data.data.public_metrics.following_count);
+      
       if (following.rows[0].following < response.data.data.public_metrics.following_count) {
         const numberNew = response.data.data.public_metrics.following_count - following.rows[0].following;
 
@@ -47,8 +47,6 @@ cron.schedule('*/5 * * * * *', async () => {
         await pool.query(`UPDATE twitterdata SET following = ${response.data.data.public_metrics.following_count} WHERE username = '${username[i]}'`);
       } else if (following.rows[0].following > response.data.data.public_metrics.following_count) {
         await pool.query(`UPDATE twitterdata SET following = ${response.data.data.public_metrics.following_count} WHERE username = '${username[i]}'`);
-      } else {
-        console.log("no changes found");
       }
     } else {
       await pool.query(`INSERT INTO twitterdata (username, following, twitterid) VALUES ('${response.data.data.username}', ${response.data.data.public_metrics.following_count}, '${response.data.data.id}')`)
