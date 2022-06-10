@@ -72,7 +72,7 @@ cron.schedule('*/1 * * * *', async () => {
     } else {
       await pool.query(`INSERT INTO twitterdata (username, following, twitterid) VALUES ('${response.data.data.username}', ${response.data.data.public_metrics.following_count}, '${response.data.data.id}')`)
 
-      console.log(`added new twitter user: ${response.data.data.username}`);
+      console.log(`Added new Twitter user: ${response.data.data.username}`);
 
       (channel as TextChannel).send(`<@${userId}> https://twitter.com/${response.data.data.username} is now being tracked`);
     }
